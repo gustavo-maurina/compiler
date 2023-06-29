@@ -8,6 +8,11 @@ export default {
     extend: {
       borderWidth: {
         '1': '1px'
+      },
+      colors: {
+        'green': {
+          '925': 'rgb(12, 53, 29)'
+        }
       }
     },
   },
