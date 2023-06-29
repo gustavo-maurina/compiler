@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp, Code, Trash2 } from "react-feather";
 import  { Interpreter, Lexer } from "../compiler_shitty/lexer";
 import { GRAMMAR } from "../compiler_shitty/grammar";
+import { lexico } from "../compilers/parser";
 
 const FONT_SIZES = [12, 14, 16, 18, 20, 22, 24] as const;
 const BASE_FONT_SIZE_INDEX = 4 as const;
@@ -16,8 +17,14 @@ export const Terminal = ({text}:{text: string}) => {
   useEffect(() => {
     try {
       console.log(text); // 7
-
+      if(!text) return
+      const [tokens, erros] = lexico(text)
+      if(erros.length) {
+        throw erros[0]
+      }
+      setCompilerResponse('success')
     } catch(err: any) {
+      console.log(err)
       if(err.message) {
         setCompilerResponse(err.message)
         return

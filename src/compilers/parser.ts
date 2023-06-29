@@ -35,41 +35,46 @@ const patterns = [
 ];
 
 // Função de análise léxica
-function lexico(input) {
+export function lexico(input: string): Array<Record<string, string>[] | string[]> {
 	let inputAux = input;
-	let erros = [];
-	let tokens = [];
+	const erros: string[] = [];
+	let tokens: Record<string, string>[] = [];
 
+	let newInput: string[] = []
 	//fazer o split por quebras de linha e espaços em branco
-	input = input.trim().split(/([{}();.,]|[\s\n\r]+|'.*?'|\w+)/g).filter((str) => str.trim() !== '');
+	newInput = input.trim().split(/([{}();.,]|[\s\n\r]+|'.*?'|\w+)/g).filter((str) => str.trim() !== '');
 
-	for (let [index, i] of input.entries()) {
-		for (let p of patterns) {
+	// eslint-disable-next-line prefer-const
+	for (let [index, i] of newInput.entries()) {
+		for (const p of patterns) {
 			i = i.replace(p[0], function(match) {
 				if (p[1]) {
-					tokens.push({type: p[1], value: match});
+					tokens.push({type: p[1] as string, value: match});
 				}
 				return '';
 			});
 		}
-		input[index] = i;
+		newInput[index] = i;
 	}
 
-	input = input.join('');
+	const joinedInput = newInput.join('');
 
-	if(input.length > 0){
-		for (let i = 0; i < input.length; i++) {
+	if(joinedInput.length > 0){
+		for (let i = 0; i < joinedInput.length; i++) {
 			// acha a primeira instância de erro
-			let error = inputAux.indexOf(input[i]);
+			const error = inputAux.indexOf(joinedInput[i]);
 			// pega o trecho do erro
-			let errorText = input[i];
+			const errorText = joinedInput[i];
 			// pega a linha do erro
-			let line = inputAux.substring(0, error).split('\n').length;
+			const line = inputAux.substring(0, error).split('\n').length;
 			// pega a coluna do erro
-			let column = inputAux.substring(0, error).split('\n').pop().length + 1;
+			// eslint-disable-next-line
+			const aux = inputAux.substring(0, error).trim().split('\n')
+			if(!aux) {throw new Error('houston we got a problem')}
+			const column = aux.length + 1;
 			// retorna o erro
 			erros.push(`Erro léxico: token inválido. '${errorText}' na linha ${line}, caractere ${column}`);
-			inputAux = inputAux.replace(input[i], '');
+			inputAux = inputAux.replace(joinedInput[i], '');
 		}
 	}
 
@@ -80,10 +85,10 @@ function lexico(input) {
 }
 
 // Função de análise sintática
-function sintatico(tokens) {
+export function sintatico(tokens: Record<string, string>[]) {
 	let position = 0;
 
-	function match(expected_type) {
+	function match(expected_type: string | string[]) {
 		// verifica se o tipo esperado é uma string ou uma lista de strings
 		if (typeof expected_type === 'string') {
 			// console.log(`Posição: '${position}', Tupla: {type: ${tokens[position].type}, value: '${tokens[position].value}'}`);
@@ -94,7 +99,7 @@ function sintatico(tokens) {
 			}
 		} else if (Array.isArray(expected_type)) {
 			// console.log(`Posição: '${position}', Tupla: {type: ${tokens[position].type}, value: '${tokens[position].value}'}`);
-			for (let expected of expected_type) {
+			for (const expected of expected_type) {
 				if (position < tokens.length && (tokens[position].type === expected || tokens[position].value === expected)) {
 					position++;
 					return;
@@ -207,23 +212,11 @@ begin {
     if (numero > 0) {
         print(palavra);
     } else {
-        print(numero);        
+        print(numero);
     })
 end
 };
 `;
 
-// Chamada da análise léxica
-let [tokensList, erros] = lexico(entry);
 
-if (erros.length > 0) {
-	console.log('Erros encontrados:', erros);
-} else {
-	console.log('Lista de tokens:', tokensList);
-
-	// Chamada da análise sintática
-	sintatico(tokensList);
-
-	console.log("Análise sintática concluída com sucesso!");
-}
 
