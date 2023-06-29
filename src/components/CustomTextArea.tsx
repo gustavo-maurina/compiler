@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, KeyboardEvent, SetStateAction, useEffect, useRef, useState } from "react";
 import { debounce } from "../utils/functions/debounce";
 import { Oval } from "react-loader-spinner";
 
@@ -7,18 +7,16 @@ const BASE_FONT_SIZE_INDEX = 1 as const;
 
 type CustomTextAreaProps = {
   setInput: Dispatch<SetStateAction<string | undefined>>;
-  input?: string
+  input?: string;
 };
 
 export const CustomTextArea = ({ setInput, input }: CustomTextAreaProps) => {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   const [fontSizeIndex, setFontSizeIndex] =
     useState<number>(BASE_FONT_SIZE_INDEX);
 
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
-
-
 
   useEffect(() => {
     function handleKeyDown() {
@@ -46,9 +44,56 @@ export const CustomTextArea = ({ setInput, input }: CustomTextAreaProps) => {
   }
 
   const handleInput = debounce((value: string) => {
-    setInput(value)
-    setIsLoading(false)}
-  , 1000);
+    setInput(value);
+    setIsLoading(false);
+  }, 1000);
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (!editorRef.current) return;
+
+    const value = editorRef.current.value;
+    const selectionStart = editorRef.current.selectionStart;
+    const selectionEnd = editorRef.current.selectionEnd;
+
+    if (e.key === "Tab" && !e.shiftKey) {
+      e.preventDefault();
+      editorRef.current.value =
+        value.substring(0, selectionStart) +
+        "  " +
+        value.substring(selectionEnd);
+      editorRef.current.selectionStart =
+        editorRef.current.selectionEnd =
+          selectionEnd + 2 - (selectionEnd - selectionStart);
+    } else if (e.key === "Tab" && e.shiftKey) {
+      e.preventDefault();
+
+      const beforeStart = value
+        .substring(0, selectionStart)
+        .split("")
+        .reverse()
+        .join("");
+      const indexOfTab = beforeStart.indexOf("  ");
+      const indexOfNewline = beforeStart.indexOf("\n");
+
+      if (indexOfTab !== -1 && indexOfTab < indexOfNewline) {
+        editorRef.current.value =
+          beforeStart
+            .substring(indexOfTab + 2)
+            .split("")
+            .reverse()
+            .join("") +
+          beforeStart
+            .substring(0, indexOfTab)
+            .split("")
+            .reverse()
+            .join("") +
+          value.substring(selectionEnd);
+
+        editorRef.current.selectionStart = selectionStart - 2;
+        editorRef.current.selectionEnd = selectionEnd - 2;
+      }
+    }
+  }
 
   return (
     <>
@@ -64,70 +109,39 @@ export const CustomTextArea = ({ setInput, input }: CustomTextAreaProps) => {
           <span></span>
         </div>
         <textarea
+          aria-label="Text editor input"
+          id="editor"
           style={{ fontSize: FONT_SIZES[fontSizeIndex] }}
           className={`font-mono text-left leading-6 w-full h-full border-none bg-transparent p-0 resize-none text-gray-300 focus:outline-none`}
           spellCheck={false}
           ref={editorRef}
-          onChange={(e) => {setIsLoading(true); handleInput(e.target.value)}}
-          onKeyDown={(e) => {
-            if (!editorRef.current) return;
-
-            const value = editorRef.current.value;
-            const selectionStart = editorRef.current.selectionStart;
-            const selectionEnd = editorRef.current.selectionEnd;
-
-            if (e.key === "Tab" && !e.shiftKey) {
-              e.preventDefault();
-              editorRef.current.value =
-                value.substring(0, selectionStart) +
-                "  " +
-                value.substring(selectionEnd);
-              editorRef.current.selectionStart =
-                editorRef.current.selectionEnd =
-                  selectionEnd + 2 - (selectionEnd - selectionStart);
-            } else if (e.key === "Tab" && e.shiftKey) {
-              e.preventDefault();
-
-              const beforeStart = value
-                .substring(0, selectionStart)
-                .split("")
-                .reverse()
-                .join("");
-              const indexOfTab = beforeStart.indexOf("  ");
-              const indexOfNewline = beforeStart.indexOf("\n");
-
-              if (indexOfTab !== -1 && indexOfTab < indexOfNewline) {
-                editorRef.current.value =
-                  beforeStart
-                    .substring(indexOfTab + 2)
-                    .split("")
-                    .reverse()
-                    .join("") +
-                  beforeStart
-                    .substring(0, indexOfTab)
-                    .split("")
-                    .reverse()
-                    .join("") +
-                  value.substring(selectionEnd);
-
-                editorRef.current.selectionStart = selectionStart - 2;
-                editorRef.current.selectionEnd = selectionEnd - 2;
-              }
-            }
+          onChange={(e) => {
+            setIsLoading(true);
+            handleInput(e.target.value);
           }}
+          onKeyDown={handleKeyDown}
         />
 
         <div className="absolute top-2 flex gap-2 right-2 text-lg">
-          <Oval visible={isLoading} height={25} width={25} strokeWidth={6} wrapperClass="mr-2 mb-2" color="#86efac"/>
+          <Oval
+            visible={isLoading}
+            height={25}
+            width={25}
+            strokeWidth={6}
+            wrapperClass="mr-2 mb-2"
+            color="#86efac"
+          />
           <button
             className="bg-gradient-to-br from-cyan-200 to-green-300 w-7 font-bold  h-7 flex items-center justify-center"
             onClick={() => changeFontSize("decrease")}
+            title="Reduce font size"
           >
             -
           </button>
           <button
             className="bg-gradient-to-br from-cyan-200 to-green-300 w-7 font-bold  h-7 flex items-center justify-center"
             onClick={() => changeFontSize("increase")}
+            title="Increase font size"
           >
             +
           </button>

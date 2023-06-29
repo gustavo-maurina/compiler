@@ -3,7 +3,7 @@ import { AlertCircle, ChevronDown, ChevronUp, Code, Trash2 } from "react-feather
 import { Erro } from "../compilers/parser";
 
 const FONT_SIZES = [12, 14, 16, 18, 20, 22, 24] as const;
-const BASE_FONT_SIZE_INDEX = 4 as const;
+const BASE_FONT_SIZE_INDEX = 2 as const;
 
 type TerminalProps = {
   erros: Erro[];
@@ -41,16 +41,20 @@ export const Terminal = ({ erros }: TerminalProps) => {
           <Trash2 size={17} className="mt-1" />
           <div onClick={() => setIsOpen((curr) => !curr)}>
             {isOpen ? (
-              <ChevronDown size={18} className="mt-1" />
+              <button title="Collapse terminal">
+                <ChevronDown size={18} className="mt-1"/>
+              </button>
             ) : (
-              <ChevronUp size={18} className="mt-1" />
+              <button title="Expand terminal">
+                <ChevronUp size={18} className="mt-1" />
+              </button>
             )}
           </div>
         </div>
       </div>
 
       <div
-        className="text-slate-300"
+        className="text-slate-300 font-mono"
         style={{ fontSize: FONT_SIZES[fontSizeIndex] }}
       >
         {!!erros.length &&
