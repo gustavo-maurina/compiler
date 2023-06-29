@@ -182,6 +182,10 @@ export function sintatico(tokens: Record<string, string>[]) {
                 }
                 match("}");
             }
+        } else {
+            throw new Error(
+                `Erro sintático: token '${tokens[position].type}' não esperado na posição ${position}.`
+            );
         }
     }
 
@@ -218,7 +222,7 @@ export function sintatico(tokens: Record<string, string>[]) {
 
     // Chamada inicial da análise sintática
     variables();
-    // begin();
+    begin();
 }
 
 // Código de exemplo
