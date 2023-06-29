@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+#root, #main, html {
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  box-sizing: border-box;
+
+}
+
+#line-numbers span {
+  counter-increment: linenumber;
+}
+
+#line-numbers span::before {
+  content: counter(linenumber);
+  display: block;
+  color: #86efac;
+  opacity: 0.75;
+}
