@@ -23,7 +23,6 @@ const patterns = [
 	[/-/, 'MINUS'],
 	[/\*/, 'MULTIPLY'],
 	[/\//, 'DIVIDE'],
-	[/!/, 'NOT'],
 	[/&/, 'AND'],
 	[/\|/, 'OR'],
 	[/;/, ';'],
@@ -36,7 +35,7 @@ const patterns = [
 ];
 
 // Função de análise léxica
-function lexicalAnalyzer(input) {
+function lexico(input) {
 	let inputAux = input;
 	let erros = [];
 	let tokens = [];
@@ -81,24 +80,119 @@ function lexicalAnalyzer(input) {
 }
 
 // Função de análise sintática
-function parse(tokens, entrada) {
-	const pilha = [];
-	let tokenAtual = 0;
-	let token = tokens[tokenAtual];
-	let erros = [];
+function sintatico(tokens) {
+	let position = 0;
 
-	// Função para verificar se o token atual é do tipo esperado
-	function eat(type) {
-		if (token.type === type) {
-			tokenAtual++;
-			token = tokens[tokenAtual];
-		} else {
-			erros.push(`Erro sintático: token inválido. '${token.value}' na linha ${token.line}, coluna ${token.column}`);
+	function match(expected_type) {
+		// verifica se o tipo esperado é uma string ou uma lista de strings
+		if (typeof expected_type === 'string') {
+			// console.log(`Posição: '${position}', Tupla: {type: ${tokens[position].type}, value: '${tokens[position].value}'}`);
+			if (position < tokens.length && (tokens[position].type === expected_type || tokens[position].value === expected_type)) {
+				position++;
+			} else {
+				throw new Error(`Erro sintático: token '${expected_type}' esperado, mas '${tokens[position].type}' encontrado.`);
+			}
+		} else if (Array.isArray(expected_type)) {
+			// console.log(`Posição: '${position}', Tupla: {type: ${tokens[position].type}, value: '${tokens[position].value}'}`);
+			for (let expected of expected_type) {
+				if (position < tokens.length && (tokens[position].type === expected || tokens[position].value === expected)) {
+					position++;
+					return;
+				}
+			}
+			throw new Error(`Erro sintático: token '${expected_type.join(', ')}' esperado, mas '${tokens[position].type}' encontrado.`);
 		}
 	}
 
+	function variables() {
+		match('VARIABLES');
+		match('{');
+		while (tokens[position].value !== '}') {
+			match(['NUMBER', 'STRING']);
+			match('IDENTIFIER');
+			match(';');
+		}
+		match('}');
+		match(';');
+	}
 
+	function begin() {
+		match('BEGIN');
+		match('{');
+		while (tokens[position].value !== 'end') {
+			statement();
+		}
+		match('END');
+		match('}');
+		match(';');
+	}
+
+	function statement() {
+		if (tokens[position].type === 'IDENTIFIER') {
+			atribution();
+		} else if (tokens[position].type === 'PRINT') {
+			match('PRINT');
+			match('(');
+			value();
+			match(')');
+			match(';');
+		} else if (tokens[position].type === 'IF') {
+			match('IF');
+			match('(');
+			expression();
+			match(')');
+			match('{');
+			while (tokens[position].value !== '}') {
+				statement();
+			}
+			match('}');
+			if (tokens[position].type === 'ELSE') {
+				match('ELSE');
+				match('{');
+				while (tokens[position].value !== '}') {
+					statement();
+				}
+				match('}');
+			}
+		}
+	}
+
+	function value() {
+		match(['IDENTIFIER', 'STRING_VAL', 'NUMBER_VAL']);
+	}
+
+	function atribution() {
+		value();
+		match('=');
+		value();
+		match(';');
+	}
+
+	function condition() {
+		value();
+		match(['<', '>', '==', '!=', '>=', '<=']);
+		value();
+	}
+
+	function extra_condition() {
+		match(['&', '|']);
+		condition();
+	}
+
+	function expression() {
+		while (tokens[position].value !== ')') {
+			condition();
+			if (tokens[position].type === '&' || tokens[position].type === '|') {
+				extra_condition();
+			}
+		}
+	}
+
+	// Chamada inicial da análise sintática
+	variables();
+	begin();
 }
+
 
 // Código de exemplo
 const entry = `
@@ -114,13 +208,13 @@ begin {
         print(palavra);
     } else {
         print(numero);        
-    }
+    })
 end
 };
 `;
 
 // Chamada da análise léxica
-let [tokensList, erros] = lexicalAnalyzer(entry);
+let [tokensList, erros] = lexico(entry);
 
 if (erros.length > 0) {
 	console.log('Erros encontrados:', erros);
@@ -128,7 +222,7 @@ if (erros.length > 0) {
 	console.log('Lista de tokens:', tokensList);
 
 	// Chamada da análise sintática
-	// parse(tokensList, entry);
+	sintatico(tokensList);
 
 	console.log("Análise sintática concluída com sucesso!");
 }
