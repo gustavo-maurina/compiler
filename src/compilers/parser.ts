@@ -102,21 +102,22 @@ export function sintatico(tokens: Record<string, string>[]) {
         if (typeof expected_type === "string") {
             // console.log(`Posição: '${position}', Tupla: {type: ${tokens[position].type}, value: '${tokens[position].value}'}`);
             if (
-                position < tokens.length &&
+                position < tokens.length && tokens[position] &&
                 (tokens[position].type === expected_type ||
                     tokens[position].value === expected_type)
             ) {
                 position++;
             } else {
                 throw new Error(
-                    `Erro sintático: token '${expected_type}' esperado, mas '${tokens[position].type}' encontrado.`
+                    `Erro sintático: token '${expected_type}' esperado na posição ${position}, 
+                    mas '${tokens[position]?.type ?? "fim do arquivo"}' encontrado.`
                 );
             }
         } else if (Array.isArray(expected_type)) {
             // console.log(`Posição: '${position}', Tupla: {type: ${tokens[position].type}, value: '${tokens[position].value}'}`);
             for (const expected of expected_type) {
                 if (
-                    position < tokens.length &&
+                    position < tokens.length && tokens[position] &&
                     (tokens[position].type === expected ||
                         tokens[position].value === expected)
                 ) {
@@ -125,9 +126,8 @@ export function sintatico(tokens: Record<string, string>[]) {
                 }
             }
             throw new Error(
-                `Erro sintático: token '${expected_type.join(", ")}' esperado, mas '${
-                    tokens[position].type
-                }' encontrado.`
+                `Erro sintático: token '${expected_type.join(", ")}'  esperado na posição ${position},
+                 mas '${tokens[position]?.type ?? "fim do arquivo"}' encontrado.`
             );
         }
     }
@@ -218,7 +218,7 @@ export function sintatico(tokens: Record<string, string>[]) {
 
     // Chamada inicial da análise sintática
     variables();
-    begin();
+    // begin();
 }
 
 // Código de exemplo

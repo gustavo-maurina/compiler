@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import "./App.css";
-import {Erro, Token, lexico} from "./compilers/parser";
+import {Erro, Token, lexico, sintatico} from "./compilers/parser";
 import {Terminal} from "./components/Terminal";
 import {Tokens} from "./components/Tokens";
 import {CustomTextArea} from "./components/CustomTextArea";
@@ -17,6 +17,7 @@ function App() {
             const [tokens, erros] = lexico(input);
             setTokens(tokens);
             setErros(erros);
+            sintatico(tokens);
         } catch (err: any) {
             console.log(err);
             if (err.message) {
