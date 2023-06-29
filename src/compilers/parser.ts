@@ -222,20 +222,20 @@ export function sintatico(tokens: Record<string, string>[]) {
 }
 
 // Código de exemplo
-const entry = `
-variables {
-    number numero;
-    string palavra;
-};
-
-begin {
-	numero = 1;
-	palavra = 'hello world';
-    if (numero > 0) {
-        print(palavra);
-    } else {
-        print(numero);
-    })
-end
-};
-`;
+// const entry = `
+// variables {
+//     number numero;
+//     string palavra;
+// };
+//
+// begin {
+// 	numero = 1;
+// 	palavra = 'hello world';
+//     if (numero > 0) {
+//         print(palavra);
+//     } else {
+//         print(numero);
+//     })
+// end
+// };
+// `;
