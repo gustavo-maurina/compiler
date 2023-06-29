@@ -32,10 +32,10 @@ export const Tokens = ({ tokens }: TokensProps) => {
                   idx % 2 === 0 ? "bg-green-925" : "bg-green-950"
                 }`}
               >
-                <td className="py-2 px-4 text-center border-1 border-zinc-100 border-opacity-30 w-1/2 break-words">
+                <td className="py-2 px-4 text-center border-1 border-zinc-100 border-opacity-30 w-1/2 break-words font-mono">
                   {token.type}
                 </td>
-                <td className="py-2 px-4 text-center border-1 border-zinc-100 border-opacity-30 w-1/2 break-words">
+                <td className="py-2 px-4 text-center border-1 border-zinc-100 border-opacity-30 w-1/2 break-words font-mono">
                   {token.value}
                 </td>
               </tr>
