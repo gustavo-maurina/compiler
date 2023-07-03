@@ -38,7 +38,6 @@ export const Terminal = ({erros}: TerminalProps) => {
                     <span className={`mt-1 ${erros.length && 'text-red-400'}`}>Terminal</span>
                 </div>
                 <div className="flex gap-6 text-white font-bold cursor-pointer">
-                    <Trash2 size={17} className="mt-1"/>
                     <div onClick={() => setIsOpen((curr) => !curr)}>
                         {isOpen ? (
                             <button title="Collapse terminal">
