@@ -19,7 +19,6 @@ function App() {
       setErros(erros);
       sintatico(tokens);
     } catch (err: any) {
-      console.log(err);
       if (err.message) {
         setErros([err.message]);
       } else {
