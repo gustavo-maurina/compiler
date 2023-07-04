@@ -18,15 +18,22 @@ const patterns: Pattern[] = [
     [/>=/, ">="],
     [/!=/, "!="],
     [/<=/, "<="],
+    [/\+\+/, "++"],
+    [/--/, "--"],
+    [/\+=/, "+="],
+    [/-=/, "-="],
+    [/\*=/, "*="],
+    [/\/=/, "/="],
+    [/%=/, "%="],
     [/=/, "="],
     [/</, "<"],
     [/>/, ">"],
-    [/\+/, "PLUS"],
-    [/-/, "MINUS"],
-    [/\*/, "MULTIPLY"],
-    [/\//, "DIVIDE"],
-    [/&/, "AND"],
-    [/\|/, "OR"],
+    [/\+/, "+"],
+    [/-/, "-"],
+    [/\*/, "*"],
+    [/\//, "/"],
+    [/&/, "&"],
+    [/\|/, "|"],
     [/;/, ";"],
     [/[{]/, "{"],
     [/[}]/, "}"],
@@ -198,7 +205,7 @@ export function sintatico(tokens: Record<string, string>[]) {
             attribution();
             condition();
             match(";");
-            value();
+            selfMath();
             match(")");
             match("{");
             while (tokens[position].type !== "}") {
@@ -216,10 +223,23 @@ export function sintatico(tokens: Record<string, string>[]) {
         match(["IDENTIFIER", "STRING_VAL", "NUMBER_VAL"]);
     }
 
+    function selfMath() {
+        value();
+        match(["++", "--", "+=", "-=", "*=", "/=", "%="]);
+    }
+
+    function math() {
+        match(["+", "-", "*", "/"]);
+        value();
+    }
+
     function attribution() {
         value();
         match("=");
         value();
+        if (["+", "-", "*", "/"].includes(tokens[position].type)) {
+            math();
+        }
         match(";");
     }
 
@@ -232,7 +252,7 @@ export function sintatico(tokens: Record<string, string>[]) {
     function expression() {
         do {
             condition();
-            if (tokens[position].type === "AND" || tokens[position].type === "OR") {
+            if (tokens[position].type === "&" || tokens[position].type === "|") {
                 match(["&", "|"]);
                 expression();
             }
