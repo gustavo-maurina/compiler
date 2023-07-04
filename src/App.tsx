@@ -30,7 +30,7 @@ function App() {
   return (
     <>
       <div id="main" className="flex w-screen h-screen bg-zinc-950">
-        <div className="flex flex-col w-4/5">
+        <div className="flex flex-col w-9/12">
           <CustomTextArea setInput={setInput} input={input} />
           <Terminal erros={erros} />
         </div>

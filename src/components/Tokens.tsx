@@ -12,7 +12,7 @@ export const Tokens = ({ tokens }: TokensProps) => {
 
   return (
     <>
-      <div className="overflow-y-auto overflow-x-hidden pt-4 flex items-center flex-col gap-4 w-1/5 bg-zinc-900 drop-shadow-2xl text-green-300 border-l-1 border-l-zinc-600 border-opacity-50">
+      <div className="overflow-y-auto overflow-x-hidden pt-4 flex items-center flex-col gap-4 w-3/12 bg-zinc-900 drop-shadow-2xl text-green-300 border-l-1 border-l-zinc-600 border-opacity-50">
         <div className="font-mono flex justify-between items-center w-full px-8">
             <div></div>
             <div className="flex gap-1">
