@@ -157,7 +157,7 @@ export function sintatico(tokens: Record<string, string>[]) {
 
     function statement() {
         if (tokens[position].type === "IDENTIFIER") {
-            atribution();
+            attribution();
         } else if (tokens[position].type === "PRINT") {
             match("PRINT");
             match("(");
@@ -183,8 +183,22 @@ export function sintatico(tokens: Record<string, string>[]) {
                 match("}");
             }
         } else if (tokens[position].type === "WHILE") {
+            match("WHILE");
             match("(");
             expression();
+            match(")");
+            match("{");
+            while (tokens[position].type !== "}") {
+                statement();
+            }
+            match("}");
+        } else if (tokens[position].type === "FOR") {
+            match("FOR");
+            match("(");
+            attribution();
+            condition();
+            match(";");
+            value();
             match(")");
             match("{");
             while (tokens[position].type !== "}") {
@@ -202,7 +216,7 @@ export function sintatico(tokens: Record<string, string>[]) {
         match(["IDENTIFIER", "STRING_VAL", "NUMBER_VAL"]);
     }
 
-    function atribution() {
+    function attribution() {
         value();
         match("=");
         value();
