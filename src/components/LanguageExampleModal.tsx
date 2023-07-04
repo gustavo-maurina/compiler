@@ -48,9 +48,11 @@ export const LanguageExampleModal = ({ isOpen }: { isOpen: true }) => {
         <span className="text-emerald-200">(</span>numero
         <span className="text-emerald-200">)</span><span className="text-gray-400">;</span><br />
         <span className="mr-7 text-sm text-green-300 opacity-50">12</span>
-        <span className="text-yellow-300">&#125;</span>
+        <span className="text-yellow-300">&#125;</span><br />
+        <span className="mr-7 text-sm text-green-300 opacity-50">13</span>
+        <span className="text-pink-300">end</span>
         <br />
-        <span className="mr-5 text-sm text-green-300 opacity-50">13</span>
+        <span className="mr-5 text-sm text-green-300 opacity-50">14</span>
         <span className="text-yellow-300">&#125;</span><span className="text-gray-400">;</span>
       </dialog>
     </div>,
