@@ -264,21 +264,26 @@ export function sintatico(tokens: Record<string, string>[]) {
     begin();
 }
 
-// Código de exemplo
-// const entry = `
 // variables {
 //     number numero;
 //     string palavra;
 // };
 //
 // begin {
-// 	numero = 1;
-// 	palavra = 'hello world';
+//     numero = 1;
+//     palavra = 'hello world';
 //     if (numero > 0) {
 //         print(palavra);
 //     } else {
 //         print(numero);
-//     })
-// end
+//     }
+//
+//     while (numero < 10) {
+//         numero = numero + 1;
+//     }
+//
+//     for (numero = 0; numero < 10; numero++) {
+//         print(numero);
+//     }
+//     end
 // };
-// `;
