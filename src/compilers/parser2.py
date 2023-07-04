@@ -144,7 +144,6 @@ def parse(tokens):
             if tokens[position][0] == 'AND' or tokens[position][0] == 'OR':
                 extra_condition()
 
-
     # Chamada inicial da análise sintática
     variables()
     begin()
