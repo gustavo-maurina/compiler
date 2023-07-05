@@ -22,8 +22,7 @@ export const Tokens = ({ tokens }: TokensProps) => {
             </div>
           <div
             className="flex float-right cursor-pointer"
-            onMouseEnter={() => setExampleModalOpen(true)}
-            onMouseLeave={() => setExampleModalOpen(false)}
+            onClick={() => setExampleModalOpen(curr => !curr)}
           >
             <HelpCircle size={19} className="w-full h-full"/>
           </div>
@@ -61,7 +60,7 @@ export const Tokens = ({ tokens }: TokensProps) => {
         )}
       </div>
 
-      {exampleModalOpen && <LanguageExampleModal isOpen={exampleModalOpen}/>}
+      {exampleModalOpen && <LanguageExampleModal isOpen={exampleModalOpen} onClose={() => setExampleModalOpen(false)}/>}
     </>
   );
 };
