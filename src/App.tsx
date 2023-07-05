@@ -15,9 +15,14 @@ function App() {
 
         try {
             const [tokens, erros] = lexico(input);
-            setTokens(tokens);
-            setErros(erros);
-            sintatico(tokens);
+            if(tokens.length > 0) {
+                setTokens(tokens);
+                setErros(erros);
+                sintatico(tokens);
+            } else {
+                setErros([]);
+                setTokens([]);
+            }
         } catch (err: any) {
             if (err.message) {
                 setErros([err.message]);

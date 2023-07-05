@@ -1,6 +1,7 @@
 type Pattern = [RegExp, string];
 
 const patterns: Pattern[] = [
+    [/\/\/[^\n\r]*/, "skip"],
     [/variables/, "VARIABLES"],
     [/'[^']*'/, "STRING_VAL"],
     [/number/, "NUMBER"],
@@ -56,7 +57,7 @@ export function lexico(input: string): [Token[], Erro[]] {
     //fazer o split por quebras de linha e espaços em branco
     newInput = input
         .trim()
-        .split(/([{}();.,]|[\s\n\r]+|'.*?'|\w+)/g)
+        .split(/(\/\/[^\n\r]*|[{}();.,]|[\s\n\r]+|'.*?'|\w+)/g)
         .filter((str) => str.trim() !== "");
 
     // eslint-disable-next-line prefer-const
@@ -160,6 +161,12 @@ export function sintatico(tokens: Record<string, string>[]) {
         match("END");
         match("}");
         match(";");
+        if (tokens?.[position]) {
+            throw new Error(
+                `Erro sintático: Nenhum token esperado na posição ${position}, 
+                mas "${tokens?.[position]?.type}" encontrado.`
+            );
+        }
     }
 
     function statement() {
