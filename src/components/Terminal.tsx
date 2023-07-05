@@ -10,7 +10,7 @@ type TerminalProps = {
 };
 
 export const Terminal = ({ erros }: TerminalProps) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [fontSizeIndex, setFontSizeIndex] =
     useState<number>(BASE_FONT_SIZE_INDEX);
 
