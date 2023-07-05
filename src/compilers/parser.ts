@@ -2,6 +2,7 @@ type Pattern = [RegExp, string];
 
 const patterns: Pattern[] = [
     [/variables/, "VARIABLES"],
+    [/'[^']*'/, "STRING_VAL"],
     [/number/, "NUMBER"],
     [/string/, "STRING"],
     [/begin/, "BEGIN"],
@@ -11,22 +12,28 @@ const patterns: Pattern[] = [
     [/print/, "PRINT"],
     [/while/, "WHILE"],
     [/for/, "FOR"],
-    [/'[^']*'/, "STRING_VAL"],
     [/[a-zA-Z_][a-zA-Z0-9_]*/, "IDENTIFIER"],
     [/\b\d+(\.\d+)?\b/, "NUMBER_VAL"],
     [/==/, "=="],
     [/>=/, ">="],
     [/!=/, "!="],
     [/<=/, "<="],
+    [/\+\+/, "++"],
+    [/--/, "--"],
+    [/\+=/, "+="],
+    [/-=/, "-="],
+    [/\*=/, "*="],
+    [/\/=/, "/="],
+    [/%=/, "%="],
     [/=/, "="],
     [/</, "<"],
     [/>/, ">"],
-    [/\+/, "PLUS"],
-    [/-/, "MINUS"],
-    [/\*/, "MULTIPLY"],
-    [/\//, "DIVIDE"],
-    [/&/, "AND"],
-    [/\|/, "OR"],
+    [/\+/, "+"],
+    [/-/, "-"],
+    [/\*/, "*"],
+    [/\//, "/"],
+    [/&/, "&"],
+    [/\|/, "|"],
     [/;/, ";"],
     [/[{]/, "{"],
     [/[}]/, "}"],
@@ -109,8 +116,8 @@ export function sintatico(tokens: Record<string, string>[]) {
                 position++;
             } else {
                 throw new Error(
-                    `Erro sintático: token '${expected_type}' esperado na posição ${position}, 
-                    mas '${tokens[position]?.type ?? "fim do arquivo"}' encontrado.`
+                    `Erro sintático: token "${expected_type}" esperado na posição ${position}, 
+                    mas "${tokens[position]?.type ?? "fim do arquivo"}" encontrado.`
                 );
             }
         } else if (Array.isArray(expected_type)) {
@@ -126,8 +133,8 @@ export function sintatico(tokens: Record<string, string>[]) {
                 }
             }
             throw new Error(
-                `Erro sintático: token '${expected_type.join(", ")}'  esperado na posição ${position},
-                 mas '${tokens[position]?.type ?? "fim do arquivo"}' encontrado.`
+                `Erro sintático: token "${expected_type.join(", ")}"  esperado na posição ${position},
+                 mas "${tokens[position]?.type ?? "fim do arquivo"}" encontrado.`
             );
         }
     }
@@ -135,7 +142,7 @@ export function sintatico(tokens: Record<string, string>[]) {
     function variables() {
         match("VARIABLES");
         match("{");
-        while (tokens[position].value !== "}") {
+        while (tokens[position].type !== "}") {
             match(["NUMBER", "STRING"]);
             match("IDENTIFIER");
             match(";");
@@ -147,7 +154,7 @@ export function sintatico(tokens: Record<string, string>[]) {
     function begin() {
         match("BEGIN");
         match("{");
-        while (tokens[position].value !== "end") {
+        while (tokens[position].type !== "END") {
             statement();
         }
         match("END");
@@ -157,7 +164,7 @@ export function sintatico(tokens: Record<string, string>[]) {
 
     function statement() {
         if (tokens[position].type === "IDENTIFIER") {
-            atribution();
+            attribution();
         } else if (tokens[position].type === "PRINT") {
             match("PRINT");
             match("(");
@@ -170,18 +177,41 @@ export function sintatico(tokens: Record<string, string>[]) {
             expression();
             match(")");
             match("{");
-            while (tokens[position].value !== "}") {
+            while (tokens[position].type !== "}") {
                 statement();
             }
             match("}");
             if (tokens[position].type === "ELSE") {
                 match("ELSE");
                 match("{");
-                while (tokens[position].value !== "}") {
+                while (tokens[position].type !== "}") {
                     statement();
                 }
                 match("}");
             }
+        } else if (tokens[position].type === "WHILE") {
+            match("WHILE");
+            match("(");
+            expression();
+            match(")");
+            match("{");
+            while (tokens[position].type !== "}") {
+                statement();
+            }
+            match("}");
+        } else if (tokens[position].type === "FOR") {
+            match("FOR");
+            match("(");
+            attribution();
+            condition();
+            match(";");
+            selfMath();
+            match(")");
+            match("{");
+            while (tokens[position].type !== "}") {
+                statement();
+            }
+            match("}");
         } else {
             throw new Error(
                 `Erro sintático: token '${tokens[position].type}' não esperado na posição ${position}.`
@@ -193,31 +223,40 @@ export function sintatico(tokens: Record<string, string>[]) {
         match(["IDENTIFIER", "STRING_VAL", "NUMBER_VAL"]);
     }
 
-    function atribution() {
+    function selfMath() {
+        value();
+        match(["++", "--", "+=", "-=", "*=", "/=", "%="]);
+    }
+
+    function math() {
+        match(["+", "-", "*", "/"]);
+        value();
+    }
+
+    function attribution() {
         value();
         match("=");
         value();
+        if (["+", "-", "*", "/"].includes(tokens[position].type)) {
+            math();
+        }
         match(";");
     }
 
     function condition() {
         value();
-        match(["<", ">", "==", "!=", ">=", "<="]);
+        match(["!=", "==", ">=", "<=", "<", ">"]);
         value();
     }
 
-    function extra_condition() {
-        match(["&", "|"]);
-        condition();
-    }
-
     function expression() {
-        while (tokens[position].value !== ")") {
+        do {
             condition();
             if (tokens[position].type === "&" || tokens[position].type === "|") {
-                extra_condition();
+                match(["&", "|"]);
+                expression();
             }
-        }
+        } while (tokens[position].type !== ")");
     }
 
     // Chamada inicial da análise sintática
@@ -225,21 +264,26 @@ export function sintatico(tokens: Record<string, string>[]) {
     begin();
 }
 
-// Código de exemplo
-// const entry = `
 // variables {
 //     number numero;
 //     string palavra;
 // };
 //
 // begin {
-// 	numero = 1;
-// 	palavra = 'hello world';
+//     numero = 1;
+//     palavra = 'hello world';
 //     if (numero > 0) {
 //         print(palavra);
 //     } else {
 //         print(numero);
-//     })
-// end
+//     }
+//
+//     while (numero < 10) {
+//         numero = numero + 1;
+//     }
+//
+//     for (numero = 0; numero < 10; numero++) {
+//         print(numero);
+//     }
+//     end
 // };
-// `;
